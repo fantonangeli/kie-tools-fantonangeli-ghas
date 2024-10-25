@@ -1,4 +1,4 @@
-name: Build KIE Tools Midstream
+name: Build kie-tools 
 
 on:
   workflow_dispatch:
@@ -9,58 +9,60 @@ on:
         default: 'main'
 
 jobs:
-  build:
+  build_and_publish:
     runs-on: ubuntu-latest
     env:
-      QUAY_REPO: fabrizio_antonangeli/osl-management-console-image
-      IMAGE_TAG: 999-SNAPSHOT
+      DOCKER_TAG: '999-SNAPSHOT'
+      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+      QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
         with:
+          repository: kiegroup/kie-tools
           ref: ${{ github.event.inputs.branch }}
 
-      # Install Required Tools
-      - name: Set up Node 20
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install pnpm
         run: npm install -g pnpm@9.3.0
-      - name: Set up Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+
       - name: Set up Maven
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
           java-version: '17'
-      - name: Install Go 1.21.9
+          distribution: 'temurin'
+      
+      - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.9'
-      - name: Set up Python 3.12
+
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helm version
+
       - name: Install Make
         run: sudo apt-get update && sudo apt-get install -y make
+
       - name: Install xmllint
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
-      # Build Project
-      - name: Build with Maven
+      - name: Build Project with Maven
         run: mvn clean install
 
-      # Upload JARs as Artifacts
-      - name: Upload JAR Artifacts
+      - name: Upload Jar Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: kie-tools-jars
-          path: '**/target/*.jar'
+          name: kie-tools-artifacts
+          path: "**/target/*.jar"
 
