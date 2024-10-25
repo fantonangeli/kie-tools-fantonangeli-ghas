@@ -53,8 +53,7 @@ jobs:
           sudo apt-get install -y make libxml2-utils
 
       - name: Build KIE Tools
-        run: mvn clean install -DskipTests
-
+        run: mvn clean install
       - name: Upload JAR artifacts
         uses: actions/upload-artifact@v2
         with:
