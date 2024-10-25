@@ -41,8 +41,10 @@ jobs:
           sudo tar -C /usr/local -xzf go1.21.9.linux-amd64.tar.gz
           echo "export PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
 
-      - name: Set up Python 3.12
-        run: sudo apt-get install python3.12
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
 
       - name: Install Helm
         run: |
