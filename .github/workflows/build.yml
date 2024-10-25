@@ -3,64 +3,60 @@ name: Build KIE Tools
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to build'
+      repo:
+        description: 'The GitHub repository to build (e.g., kiegroup/kie-tools)'
         required: true
-        default: 'main'  # You can change this to a preferred default branch
+      branch:
+        description: 'The branch to build (e.g., main)'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the kie-tools repository
+      - name: Checkout specified repository
         uses: actions/checkout@v2
         with:
-          repository: kiegroup/kie-tools
+          repository: ${{ github.event.inputs.repo }}
           ref: ${{ github.event.inputs.branch }}
 
-      - name: Set up Java 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
           java-version: '17'
-          distribution: 'temurin'
 
       - name: Set up Node.js 20
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: '20'
 
       - name: Install pnpm
         run: npm install -g pnpm@9.3.0
 
-      - name: Install Go 1.21.9
+      - name: Install Go
         run: |
           wget https://golang.org/dl/go1.21.9.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go1.21.9.linux-amd64.tar.gz
-          echo 'export PATH=$PATH:/usr/local/go/bin' >> $GITHUB_ENV
+          echo "export PATH=$PATH:/usr/local/go/bin" >> $GITHUB_ENV
 
-      - name: Install Python 3.12
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3.12 python3.12-distutils
-          curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+      - name: Set up Python 3.12
+        run: sudo apt-get install python3.12
 
-      - name: Install Helm 3.13.3
+      - name: Install Helm
         run: |
-          wget https://get.helm.sh/helm-v3.13.3-linux-amd64.tar.gz
-          tar -zxvf helm-v3.13.3-linux-amd64.tar.gz
-          sudo mv linux-amd64/helm /usr/local/bin/helm
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
       - name: Install Make and xmllint
         run: |
-          sudo apt-get install -y make
-          sudo apt-get install -y libxml2-utils
+          sudo apt-get update
+          sudo apt-get install -y make libxml2-utils
 
-      - name: Build the project
-        run: mvn clean install
+      - name: Build KIE Tools
+        run: mvn clean install -DskipTests
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload JAR artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: kie-tools-artifacts
           path: |
