@@ -26,7 +26,7 @@ These artifacts can then be used as dependencies in other projects, allowing for
 3. **Install Artifacts Locally**:
    - After downloading, install the artifacts in your local Maven repository to use them in your project. For example:
      ```bash
-     mvn install:install-file -Dfile=path/to/sonataflow-quarkus-devui-999-SNAPSHOT.jar -DgroupId=org.apache.kie.sonataflow -DartifactId=sonataflow-quarkus-devui -Dversion=999-SNAPSHOT -Dpackaging=jar
+     mvn install:install-file -Dfile=path/to/sonataflow-quarkus-devui-999-SNAPSHOT.jar
      ```
 
 4. **Integrate in Your Project**:
