@@ -23,8 +23,6 @@ jobs:
           
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
-        with:
-          working_dir: kie-tools
 
       - name: Build KIE Tools
         run: mvn clean install
