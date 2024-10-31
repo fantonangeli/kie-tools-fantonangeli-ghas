@@ -17,7 +17,7 @@ on:
         default: 'fabrizio_antonangeli'
         required: true
       image-name:
-        description: 'The Docker image name (e.g., incubator-kie-sonataflow-management-console)'
+        description: 'The Docker image name (e.g., apache/incubator-kie-sonataflow-management-console )'
         required: true
       image-tag:
         description: 'The Docker image tag (e.g., latest)'
