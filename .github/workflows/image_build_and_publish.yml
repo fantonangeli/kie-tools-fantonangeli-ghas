@@ -1,0 +1,61 @@
+name: "Image build and publish to Quay.io"
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'The GitHub repository to build (e.g., kiegroup/kie-tools)'
+        required: true
+      branch:
+        description: 'The branch to build (e.g., main)'
+        required: true
+      package-of-the-image:
+        description: 'The package containing the image (e.g., @kie-tools/sonataflow-management-console-image)'
+        required: true
+      image-name:
+        description: 'The docker image name (e.g., incubator-kie-sonataflow-management-console)'
+        required: true
+      image-tag:
+        description: 'The docker image tag (e.g., latest)'
+        default: 'latest'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout specified repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.inputs.repo }}
+          ref: ${{ github.event.inputs.branch }}
+      
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+
+      - name: "Bootstrap"
+        id: bootstrap
+        uses: ./.github/actions/bootstrap
+
+      - name: "Build the image"
+        env:
+          KIE_TOOLS_BUILD__buildContainerImages: "true"
+        run: |
+          pnpm -F ${{ github.event.inputs.package-of-the-image }}... build:prod
+
+      - name: Log in to Quay.io
+        env:
+          QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          echo "$QUAY_TOKEN" | docker login -u "$QUAY_USERNAME" --password-stdin quay.io
+
+      - name: Tag and push image to Quay.io
+        env:
+          IMAGE_NAME="${{ github.event.inputs.image-name }}"
+          IMAGE_TAG="${{ github.event.inputs.image-tag }}"
+          QUAY_USERNAME="${{ secrets.QUAY_USERNAME }}"
+        run: |
+          docker tag "$IMAGE_NAME" "quay.io/$QUAY_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
+          docker push "quay.io/$QUAY_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
