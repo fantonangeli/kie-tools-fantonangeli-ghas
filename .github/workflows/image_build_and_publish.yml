@@ -64,5 +64,5 @@ jobs:
           IMAGE_NAME: "${{ github.event.inputs.image-name }}"
           IMAGE_TAG: "${{ github.event.inputs.image-tag }}"
         run: |
-          docker tag "$IMAGE_NAME" "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
+          docker tag $IMAGE_NAME quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG
           docker push "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
