@@ -60,9 +60,9 @@ jobs:
 
       - name: Tag and push image to Quay.io
         env:
-          IMAGE_ACCOUNT=${{ github.event.inputs.image-account }}
-          IMAGE_NAME=${{ github.event.inputs.image-name }}
-          IMAGE_TAG=${{ github.event.inputs.image-tag }}
+          IMAGE_ACCOUNT: "${{ github.event.inputs.image-account }}"
+          IMAGE_NAME: "${{ github.event.inputs.image-name }}"
+          IMAGE_TAG: "${{ github.event.inputs.image-tag }}"
         run: |
           docker tag "$IMAGE_NAME" "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
           docker push "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
