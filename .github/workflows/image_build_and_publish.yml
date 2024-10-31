@@ -12,11 +12,15 @@ on:
       package-of-the-image:
         description: 'The package containing the image (e.g., @kie-tools/sonataflow-management-console-image)'
         required: true
+      image-account:
+        description: 'The Docker image repository account (e.g., fabrizio_antonangeli)'
+        default: 'fabrizio_antonangeli'
+        required: true
       image-name:
-        description: 'The docker image name (e.g., incubator-kie-sonataflow-management-console)'
+        description: 'The Docker image name (e.g., incubator-kie-sonataflow-management-console)'
         required: true
       image-tag:
-        description: 'The docker image tag (e.g., latest)'
+        description: 'The Docker image tag (e.g., latest)'
         default: 'latest'
         required: true
 
@@ -44,18 +48,21 @@ jobs:
         run: |
           pnpm -F ${{ github.event.inputs.package-of-the-image }}... build:prod
 
+      - name: Verify Docker images
+        run: docker images
+
       - name: Login to Quay.io
         uses: docker/login-action@v3
         with:
           registry: quay.io
-          username: ${{ vars.QUAY_USERNAME }}
+          username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
       - name: Tag and push image to Quay.io
         env:
-          IMAGE_NAME="${{ github.event.inputs.image-name }}"
-          IMAGE_TAG="${{ github.event.inputs.image-tag }}"
-          QUAY_USERNAME="${{ vars.QUAY_USERNAME }}"
+          IMAGE_ACCOUNT=${{ github.event.inputs.image-account }}
+          IMAGE_NAME=${{ github.event.inputs.image-name }}
+          IMAGE_TAG=${{ github.event.inputs.image-tag }}
         run: |
-          docker tag "$IMAGE_NAME" "quay.io/$QUAY_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
-          docker push "quay.io/$QUAY_USERNAME/$IMAGE_NAME:$IMAGE_TAG"
+          docker tag "$IMAGE_NAME" "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
+          docker push "quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG"
