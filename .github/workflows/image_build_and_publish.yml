@@ -36,11 +36,11 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
       
       - name: "Setup environment"
-        uses: ./.github/actions/setup-env
+        uses: apache/incubator-kie-tools/.github/actions/setup-env@main
 
       - name: "Bootstrap"
         id: bootstrap
-        uses: ./.github/actions/bootstrap
+        uses: apache/incubator-kie-tools/.github/actions/bootstrap@main
 
       - name: "Build the image"
         env:
