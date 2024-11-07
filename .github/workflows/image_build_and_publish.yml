@@ -1,0 +1,69 @@
+name: "Image build and publish to Quay.io"
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'The GitHub repository to build (e.g., kiegroup/kie-tools)'
+        required: true
+      branch:
+        description: 'The branch to build (e.g., main)'
+        required: true
+      package-of-the-image:
+        description: 'The package containing the image (e.g., @kie-tools/sonataflow-management-console-image)'
+        required: true
+      image-account:
+        description: 'The Docker image repository account (e.g., fabrizio_antonangeli)'
+        default: 'fabrizio_antonangeli'
+        required: true
+      image-name:
+        description: 'The Docker image name (e.g., incubator-kie-sonataflow-management-console )'
+        required: true
+      image-tag:
+        description: 'The Docker image tag (e.g., latest)'
+        default: 'latest'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout specified repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.inputs.repo }}
+          ref: ${{ github.event.inputs.branch }}
+      
+      - name: "Setup environment"
+        uses: apache/incubator-kie-tools/.github/actions/setup-env@main
+
+      - name: "Bootstrap"
+        id: bootstrap
+        uses: apache/incubator-kie-tools/.github/actions/bootstrap@main
+
+      - name: "Build the image"
+        env:
+          KIE_TOOLS_BUILD__buildContainerImages: "true"
+        run: |
+          pnpm -F ${{ github.event.inputs.package-of-the-image }}... build:prod
+
+      - name: Verify Docker images
+        run: docker images
+
+      - name: Login to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+
+      - name: Tag and push image to Quay.io
+        env:
+          IMAGE_ACCOUNT: "${{ github.event.inputs.image-account }}"
+          IMAGE_NAME: "${{ github.event.inputs.image-name }}"
+          IMAGE_TAG: "${{ github.event.inputs.image-tag }}"
+        run: |
+          set -x
+          docker tag apache/$IMAGE_NAME:main quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG
+          docker push quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG
