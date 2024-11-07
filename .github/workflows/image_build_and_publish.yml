@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_ROBOT_TOKEN }}
 
-      - name: Tag the image to Quay.io
+      - name: Tag and push image to Quay.io
         env:
           IMAGE_ACCOUNT: "${{ github.event.inputs.image-account }}"
           IMAGE_NAME: "${{ github.event.inputs.image-name }}"
@@ -66,10 +66,4 @@ jobs:
         run: |
           set -x
           docker tag apache/$IMAGE_NAME:main quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG
-
-      - name: Build and push image to Quay.io
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: quay.io/${{ github.event.inputs.image-account }}/${{ github.event.inputs.image-name }}:${{ github.event.inputs.image-tag }}
-          
+          docker push quay.io/$IMAGE_ACCOUNT/$IMAGE_NAME:$IMAGE_TAG
