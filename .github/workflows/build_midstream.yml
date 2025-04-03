@@ -1,4 +1,4 @@
-name: Build KIE Tools
+name: Build Midstream KIE Tools
 
 on:
   workflow_dispatch:
