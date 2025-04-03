@@ -75,7 +75,7 @@ jobs:
 
       - name: "Setup CI patterns"
         id: ci_patterns
-        uses: ./.github/actions/setup-ci-patterns
+        uses: apache/incubator-kie-tools/.github/actions/setup-ci-patterns@main
 
       - name: "Setup build mode {none,full,partial}"
         id: setup_build_mode
@@ -111,14 +111,14 @@ jobs:
 
       - name: "Setup environment"
         if: steps.setup_build_mode.outputs.mode != 'none'
-        uses: ./.github/actions/setup-env
+        uses: apache/incubator-kie-tools/.github/actions/setup-env@main
 
       - name: "Bootstrap"
         if: steps.setup_build_mode.outputs.mode != 'none'
         env:
           MAVEN_ARGS: "-B -Puse-maven-repo-local-tail"
           MAVEN_OPTS: "-Xmx2g"
-        uses: ./.github/actions/bootstrap
+        uses: apache/incubator-kie-tools/.github/actions/bootstrap@main
         with:
           pnpm_filter_string: ${{ steps.setup_build_mode.outputs.bootstrapPnpmFilterString }}
 
@@ -215,7 +215,7 @@ jobs:
 
       - name: "Upload reports and artifacts"
         if: always() && !cancelled() && steps.setup_build_mode.outputs.mode != 'none'
-        uses: ./.github/actions/upload-ci-reports-and-artifacts
+        uses: apache/incubator-kie-tools/.github/actions/upload-ci-reports-and-artifacts@main
         with:
           partition_index: ${{ matrix.partition }}
 

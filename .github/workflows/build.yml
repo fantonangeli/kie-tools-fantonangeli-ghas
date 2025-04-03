@@ -22,7 +22,7 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
       
       - name: "Setup environment"
-        uses: apache/incubator-kie-tools/.github/actions/setup-env@main        
+        uses: apache/incubator-kie-tools/.github/actions/setup-env@main
 
       - name: Build KIE Tools
         run: mvn clean install
